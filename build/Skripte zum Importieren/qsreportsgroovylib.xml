@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template:library xmlns:template="http://schemas.unitedplanet.de/intrexx/2009/scriptTemplates/" guid="ACF913C5549C6E9937517724D46CB6F83E92A584" lock="false">
+    <template:title>
+        <template:item lang="de">Intrexx Reports</template:item>
+        <template:item lang="en">Intrexx Reports</template:item>
+    </template:title>
+    <template:description>
+        <template:item lang="de">Groovy Bibliothek der QuinScape GmbH für Intrexx Reports
+© QuinScape GmbH 2018</template:item>
+        <template:item lang="en">Groovy Bibliothek by QuinScape GmbH for Intrexx Reports
+© QuinScape GmbH 2018</template:item>
+    </template:description>
+    <template:link>http://www.quinscape.de/reports</template:link>
+    <template:template guid="DA407FEADABC09FA805402F55471E04415427211">
+        <template:title>
+            <template:item lang="de">Bericht aufrufen</template:item>
+            <template:item lang="en">Call report</template:item>
+        </template:title>
+        <template:text>g_springApplicationContext.getBean("quinscape.reports.datarecordReportCreator").createReport(g_context)</template:text>
+    </template:template>
+    <template:category guid="F30D7422A68D71DE1D69D4DDC7C540421CB4C068">
+        <template:title>
+            <template:item lang="de">Groovy-API</template:item>
+            <template:item lang="en">Groovy-API</template:item>
+        </template:title>
+        <template:description>
+            <template:item lang="de">Erzeugt Reports mit der flexiblen Groovy-API.</template:item>
+            <template:item lang="en">Creates a report using the flexible Groovy-API.</template:item>
+        </template:description>
+        <template:template guid="144E66351D6751C43AC3C3877B0AC8F4AAFEFC0D">
+            <template:title>
+                <template:item lang="de">Minimales Beispiel (Datengruppenkonfiguration)</template:item>
+                <template:item lang="en">Minimal example (Data group configuration)</template:item>
+            </template:title>
+            <template:text>// Import der benötigten Klasse
+import de.uplanet.lucy.server.spring.configuration.IntrexxApplicationContext;
+
+// Instanziierung der benötigen Klasse für die Reporterstellung
+def reportsBean = g_springApplicationContext.getBean("quinscape.reports.datarecordReportCreator");
+
+// Aufruf der Reporterzeugung ohne weitere Modifikation
+reportsBean.createReport([
+
+  // Der Kontext für den Report (bedarf in der Regel keiner Änderung)
+  context: g_context,
+
+  // Hier sind zum Beispiel die Snippets einsetzbar.
+
+]); 
+</template:text>
+        </template:template>
+        <template:template guid="D6C32FA856BCE633DA3D44774B2171103687DB6E">
+            <template:title>
+                <template:item lang="de">Beispiel aus dem Handbuch</template:item>
+                <template:item lang="en">Example from the Reports manual</template:item>
+            </template:title>
+            <template:text>// Import der benötigten Klasse
+import de.uplanet.lucy.server.spring.configuration.IntrexxApplicationContext;
+
+// Instanziierung der benötigen Klasse für die Reporterstellung
+def reportsBean = g_springApplicationContext.getBean("quinscape.reports.datarecordReportCreator");
+
+// Definiert eine Variable, die später als Parameter genutzt wird.
+def meineVariable = 3 * 4 * 5 + 1;
+
+reportsBean.createReport([
+
+  // Aktiviert das Debugging für diesen Aufruf in der Portal-Log-Datei
+  debug: true,
+
+  // Der Kontext für den Report (bedarf in der Regel keiner Änderung)
+  context: g_context,
+
+  // Der Identifier des aufzurufenden Reports (GUID oder Name)
+  identifier: "Telefonverzeichnis",
+
+  // Das Ziel des Reports, in diesem Fall ein Datensatz
+  datarecord: [
+  
+    // Ziel-Datensatz
+    // recordId: 1,
+
+    // Ziel-Datengruppe
+    // datagroupGuid: "FCD7F8634EC846A3223DF29B2D8E13172DA2FDB9",
+
+    // Ziel-Datenfelder
+    datafields: [
+    
+      // Definiert einen neuen Export
+      // Es wird ein ODS mit dem Namen „test&lt;Feldinhalt&gt;“ 
+      // erstellt und in dem Datenfeld FILE_DATENFELD_001B5D85
+      // in der o.g. Datengruppe abgelegt.
+      [format: "ods", filename: "test" + g_record["B5477BFE8AA8A4DE8626A66617FC29475E793F0F"].getValue(), identifier: "FILE_DATENFELD_001B5D85"],
+      
+      // Definiert ein weiteres Exportfeld
+      // Es wird ein PDF mit dem Namen „test&lt;Feldinhalt&gt;“ 
+      // erstellt und in dem Datenfeld FILE_DATENFELD_41242AS
+      // in der o.g. Datengruppe abgelegt.
+      [format: "pdf", filename: "test" + g_record["B5477BFE8AA8A4DE8626A66617FC29475E793F0F"].getValue(), identifier: "FILE_DATENFELD_41242AS"]
+      
+    ]
+  ],
+
+
+  // Definition von Parametern, die an den Report unter dem 
+  // jeweiligen Schlüssel übergeben werden (abc, X, test, berechnet,
+  // login)
+  parameters: [
+
+    // Einfacher Wert
+    abc: 123,
+    
+    // Datum: Jetzt minus 24 Stunden
+    
+    X: new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24),
+    
+    // Ein boolescher Wert
+   	test: true,
+
+   	// Vorher berechneter Wert
+   	berechnet: meineVariable,
+
+    // Valueholder aus der Datengruppe
+    login: g_record["EBBF09B0C89616A648C67515E9116BA9B706F99B"]
+    
+  ]
+  
+]); 
+</template:text>
+        </template:template>
+        <template:template guid="ECEDFB6D1E526396679BA9B682978E8CC15C1F4D">
+            <template:title>
+                <template:item lang="de">Snippet: Debug-Ausgaben</template:item>
+                <template:item lang="en">Snippet: Debugging output</template:item>
+            </template:title>
+            <template:text>  // Aktiviert das Debugging für diesen Aufruf in der Portal-Log-Datei
+  debug: true,
+
+</template:text>
+        </template:template>
+        <template:template guid="0A6CD28566C498F6DF6EEF21155038AB9FEDA610">
+            <template:title>
+                <template:item lang="de">Snippet: Aufzurufender Report</template:item>
+                <template:item lang="en">Snippet: Report to call</template:item>
+            </template:title>
+            <template:text>  // Der Identifier des aufzurufenden Reports (GUID oder Name)
+  identifier: "...",
+
+</template:text>
+        </template:template>
+        <template:template guid="F77085B85408719A5B86A711F97EC7FCEA9D07F2">
+            <template:title>
+                <template:item lang="de">Snippet: Parameterübergabe</template:item>
+                <template:item lang="en">Snippet: Passing parameters</template:item>
+            </template:title>
+            <template:text>  // Definition von Parametern zur Übergabe an den Report
+  parameters: [
+
+    name1: wert1,
+    name2: wert2,
+    ...
+    
+  ],
+
+</template:text>
+        </template:template>
+        <template:template guid="035204CEBB4624DB4FA62E8A5360E54BB3C8C4DD">
+            <template:title>
+                <template:item lang="de">Snippet: Zieldatensatz</template:item>
+                <template:item lang="en">Snippet: Target record</template:item>
+            </template:title>
+            <template:text>  // Das Ziel des Reports, in diesem Fall ein Datensatz
+  datarecord: [
+  
+    // Neuer Ziel-Datensatz
+    newRecord: true,
+
+    // Ziel-Datensatz
+    // recordId: 1,
+
+    // Weitere Werte des neuen Datensatzes
+    /* recordValues: [
+      SPALTE_1: "Wert 1",
+      SPALTE_2: "Wert 2",
+      ...
+    ], */
+
+    // Ziel-Datengruppe
+    // datagroupGuid: "...",
+
+    // Ziel-Datenfelder
+    datafields: [
+
+      // Definiert ein neues Datenfeld für die Hinterlegung des Reports (Identifier = Sysident, GUID oder Spaltenname)
+      [format: "...", filename: "...", identifier: "..."],
+
+      // Verwenden Sie für weitere Datenfelder das Snippet für ein zusätzliches Datenfeld
+      
+    ]
+  ],
+
+</template:text>
+        </template:template>
+        <template:template guid="2421862F9758E13E1FC5D5B154E41C89BADC04B7">
+            <template:title>
+                <template:item lang="de">Snippet: Zusätzliches Datenfeld</template:item>
+                <template:item lang="en">Snippet: Additional data field</template:item>
+            </template:title>
+            <template:text>      // Definiert ein neues Datenfeld für die Hinterlegung des Reports (Identifier = Sysident, GUID oder Spaltenname)
+      [format: "...", filename: "...", identifier: "..."],
+
+</template:text>
+        </template:template>
+        <template:template guid="5C318D05D2046B6AAD3FA1F6C8C56D069F7ED64E">
+            <template:title>
+                <template:item lang="de">Snippet: Zieldatei</template:item>
+                <template:item lang="en">Snippet: Target file</template:item>
+            </template:title>
+            <template:text>  // Das Ziel des Reports, in diesem Fall eine Datei
+  files: [
+    [format: "xls", path: "D:/", filename: "Test.xls"],
+    ...
+  ],
+</template:text>
+        </template:template>
+    </template:category>
+</template:library>

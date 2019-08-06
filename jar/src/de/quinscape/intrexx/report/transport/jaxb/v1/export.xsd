@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema xmlns="http://www.quinscape.de/intrexx/reports" xmlns:qsr="http://www.quinscape.de/intrexx/reports"
+  targetNamespace="http://www.quinscape.de/intrexx/reports" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:jxb="http://java.sun.com/xml/ns/jaxb" jxb:version="2.1">
+
+  <!-- Root-Element für den Export -->
+  <xs:element name="export">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="report" minOccurs="1" maxOccurs="unbounded">
+          <xs:annotation>
+            <xs:appinfo>
+              <jxb:property name="reports" />
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:element>
+        <xs:element ref="resource" minOccurs="0" maxOccurs="unbounded">
+          <xs:annotation>
+            <xs:appinfo>
+              <jxb:property name="resources" />
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="version" type="xs:float" />
+      <xs:attribute name="comment" type="xs:string" />
+    </xs:complexType>
+
+    <!-- Primärschlüssel -->
+    <xs:key name="resource_primaryKey">
+      <xs:selector xpath="qsr:resource" />
+      <xs:field xpath="@guid" />
+    </xs:key>
+    <xs:unique name="resource_uniqueKey">
+      <xs:selector xpath="qsr:resource" />
+      <xs:field xpath="@guid" />
+    </xs:unique>
+    <xs:key name="reportResource_primaryKey">
+      <xs:selector xpath="qsr:report/resource" />
+      <xs:field xpath="@guid" />
+    </xs:key>
+    <xs:unique name="reportResource_uniqueKey">
+      <xs:selector xpath="qsr:report/resource" />
+      <xs:field xpath="@guid" />
+    </xs:unique>
+    <xs:key name="reports_primaryKey">
+      <xs:selector xpath="qsr:report" />
+      <xs:field xpath="@guid" />
+    </xs:key>
+    <xs:unique name="reports_uniqueKey">
+      <xs:selector xpath="qsr:report" />
+      <xs:field xpath="@guid" />
+    </xs:unique>
+
+    <!-- Constraints: Berichte -->
+    <xs:keyref name="report_refMainReport" refer="resource_primaryKey">
+      <xs:selector xpath="qsr:report" />
+      <xs:field xpath="@ref_main_report" />
+    </xs:keyref>
+
+    <!-- Constraints: Berichte -> Ressourcenzuordnungen -->
+    <xs:keyref name="reportResource_refResource" refer="resource_primaryKey">
+      <xs:selector xpath="qsr:report/resource" />
+      <xs:field xpath="@ref_resource" />
+    </xs:keyref>
+
+  </xs:element>
+
+  <!-- Datengruppe: Berichte -->
+  <xs:element name="report">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="resource" type="reportResource" minOccurs="0" maxOccurs="unbounded">
+          <xs:annotation>
+            <xs:appinfo>
+              <jxb:property name="resources" />
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="guid" type="ix-guid" />
+      <xs:attribute name="permissions" type="ix-str" />
+      <xs:attribute name="name" type="ix-str" />
+      <xs:attribute name="default_connection" type="ix-str" />
+      <xs:attribute name="beschreibung" type="ix-str" />
+      <xs:attribute name="ref_main_report" type="ix-guid" />
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Datengruppe: Berichte -> Ressourcenzuordnungen -->
+  <xs:complexType name="reportResource">
+    <xs:attribute name="guid" type="ix-guid" />
+    <xs:attribute name="ref_resource" type="ix-str" />
+  </xs:complexType>
+
+  <!-- Datengruppe: Ressourcen -->
+  <xs:element name="resource">
+    <xs:complexType>
+      <xs:attribute name="guid" type="ix-guid" />
+      <xs:attribute name="name" type="ix-str" />
+      <xs:attribute name="filename" type="ix-str" />
+      <xs:attribute name="url" type="ix-str" />
+      <xs:attribute name="md5" type="md5-str" />
+      <xs:attribute name="size" type="xs:long" />
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Datentypen -->
+  <xs:simpleType name="ix-guid">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-F\d]{40}" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="md5-str">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[a-f\d]{32}" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ix-str">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="0" />
+      <xs:maxLength value="255" />
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

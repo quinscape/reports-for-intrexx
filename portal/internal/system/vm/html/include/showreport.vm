@@ -1,0 +1,82 @@
+################################################################
+##get the request parameter from the source page, produce the
+##reports and set the filenames for the produced report formats
+################################################################
+
+## Wir muessen eine Endlosschleife verhindern.
+#if ($Request.rq_hasRun == '1' || $Request.rq_qsReportName || $Request.rq_ReportName || $Request.rq_qsReport || $Request.qsReport)
+
+    ## dynamische Berichte
+    #if ($Request.rq_tableRecords || $Request.rq_qsTableRecords)
+    	$Request.put('query', $DC.getDataRange($Request.get('rq_qsTableRecords', $Request.rq_tableRecords)).query)
+    
+    	#if ($Request.rq_showSql == '1' || $Request.rq_qsShowSql == '1')
+    		<div style="background-color:yellow">
+    		  $Request.query
+    		</div>
+    	#end
+    #end
+    
+		## Report erzeugen!
+    #set($reportResult = $ReportsProvider.createReport($ProcessingContext))
+    
+      #if($reportResult && $reportResult.isSuccessful())
+
+          ## Sollen die Optionen angezeigt werden?
+          #if($Request.get('rq_qsShowOptions', $Request.rq_showOptions) != '0')
+              <h3>#if($lang=='de')Bericht#else Report#end $!reportResult.reportName</h3>
+
+              <b>#if($lang=='de')Erzeugte Berichte#else Generated reports#end:</b>
+              <p/>
+              #if($Request.get('rq_qsShowInNewWindow', $Request.rq_showInNewWindow) == '1')
+                #set($target = "_blank")
+              #else
+                #set($target = "_self")
+              #end
+              #foreach($export in $reportResult.exports)
+                <a href="$export.externalFileUrl" target="$target"><img border="0" src="images/assets/filewalker/ext/${export.fileExtension}.gif"></a>&nbsp;<a href="$export.externalFileUrl" target="$target" class="SCUP_Link_Standard">#if($lang=='de')Bericht als#else Report as#end $export.format</a><br/>
+              #end            
+          #end
+  
+          ## Soll ein Bericht automatisch geöffnet werden?
+          #set($autoshowReport = $Request.get('rq_qsAutoshowReport', $Request.rq_autoshowReport))
+          #if($autoshowReport && $autoshowReport != '')
+              #set($autoshowExport = $!reportResult.get($autoshowReport))
+              #if($autoshowExport)
+                  ## In einem neuen Fenster?
+                  #if($Request.get('rq_qsShowInNewWindow', $Request.rq_showInNewWindow) == '1')
+                      ## in neuem Fenster öffnen
+                      <script language="javascript">
+                          // als Funktion da Zeitversetzt aufgerufen (s.u.)
+                          function qsPopup()
+                          {
+                              reportWindow = window.open("${autoshowExport.externalFileUrl}","Report","width=window.innerWidth,height=window.innerHeight,left=0,top=0,dependent=yes");
+                              // Abfrage wegen PopUp-Blockern
+                              if( (reportWindow != null) && !reportWindow.closed )
+                                  reportWindow.resizeTo(screen.availWidth, screen.availHeight);
+                          }
+                          // Wird diese Funktion zufrüh aufgerufen, kann UP-JavaScript
+                          // das Hauptfenster wieder in den Vordergrund holen. Deshalb
+                          // im onload und zusätzlich zeitversetzt. Beides nötig!
+                          // siehe ticket:231
+                          self.oUp.strOnLoad += 'window.setTimeout(\'qsPopup()\',1000);';
+                      </script>
+                  #else
+                      ## inline im gleichen Fenster öffnen
+                      <script language="javascript">
+                          document.location.href="${autoshowExport.externalFileUrl}";
+                      </script>
+        #end
+      #end
+          #end
+  
+    #else
+      ## Nicht erfolgreich
+      <div style="background:yellow">
+        #if($lang=='de')Es ist ein Fehler bei der Erzeugung des Reports aufgetreten.#{else}An error occured while generating the report.#end<p/>
+        $!reportResult.exception.message
+      </div>
+    #end
+#end
+
+<input type="hidden" id="hasRun" name="hasRun" value="$!Request.rq_hasRun" />

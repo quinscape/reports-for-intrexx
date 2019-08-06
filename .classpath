@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="jar/src"/>
+	<classpathentry kind="src" path="test/src"/>
+	<classpathentry kind="src" path="mergeLibraries/groovy"/>
+	<classpathentry kind="lib" path="test/lib/cglib-nodep-2.1_3.jar"/>
+	<classpathentry kind="lib" path="test/lib/easymock.jar"/>
+	<classpathentry kind="lib" path="test/lib/easymockclassextension.jar"/>
+	<classpathentry kind="lib" path="test/lib/hamcrest-all-1.1.jar"/>
+	<classpathentry kind="lib" path="test/lib/de.quinscape.intrexx.db.tester-0.8.3.jar"/>
+	<classpathentry kind="lib" path="test/lib/dbunit-2.4.8.jar"/>
+	<classpathentry kind="lib" path="test/lib/junit-4.8.2.jar"/>
+	<classpathentry kind="lib" path="test/lib/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="portal/lib/jasperreports-6.9.0.jar"/>
+	<classpathentry kind="lib" path="portal/lib/spring-jdbc-5.1.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="con" path="GROOVY_DSL_SUPPORT"/>
+	<classpathentry kind="lib" path="portal/lib/commons-beanutils-1.9.3.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/ixlib9020"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

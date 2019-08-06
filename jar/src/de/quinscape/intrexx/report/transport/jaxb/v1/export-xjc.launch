@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.ui.externaltools.ProgramLaunchConfigurationType">
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_LOCATION" value="C:\Program Files (x86)\Java\jdk1.7.0_21\bin\xjc.exe"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_TOOL_ARGUMENTS" value="-p de.quinscape.intrexx.report.transport.jaxb.v1 &quot;${workspace_loc:/Reports 6.0/jar/src/de/quinscape/intrexx/report/transport/jaxb/v1/export.xsd}&quot;"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_WORKING_DIRECTORY" value="${workspace_loc:/Reports 6.0/jar/src}"/>
+</launchConfiguration>

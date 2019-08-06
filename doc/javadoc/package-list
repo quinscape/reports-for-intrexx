@@ -1,0 +1,9 @@
+com.lowagie.examples.general.copystamp
+de.quinscape.intrexx.report
+de.quinscape.intrexx.report.dao
+de.quinscape.intrexx.report.domain
+de.quinscape.intrexx.report.domain.export
+de.quinscape.intrexx.report.domain.fill
+de.quinscape.intrexx.report.ixbl
+de.quinscape.intrexx.report.transport
+de.quinscape.intrexx.report.transport.jaxb.v1
