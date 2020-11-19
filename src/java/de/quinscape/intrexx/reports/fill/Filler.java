@@ -14,6 +14,8 @@ import java.sql.Connection;
 import java.util.Collections;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import de.uplanet.jdbc.JdbcConnection;
@@ -41,6 +43,8 @@ import net.sf.jasperreports.repo.RepositoryService;
  */
 public class Filler
 {
+
+  private static final Log LOG = LogFactory.getLog(Filler.class);
 
   /**
    * Füllt einen Bericht mit Daten. Dazu werden die verknüpften Ressourcen über einen
@@ -94,17 +98,31 @@ public class Filler
               // zum Beispiel).
               File transformedResource = resources.get(resourceName);
               if(transformedResource == null)
-                throw new RuntimeException("Die vom Bericht geforderte Ressource '" + resourceName
-                                           + "' existiert nicht in Reports für Intrexx oder ist dem Bericht nicht zugeordnet. Zugeordnet sind: "
-                                           + resources.keySet());
-              String transformedPath = "internal/files/" + CONSTANTS.REPORTS_APPGUID + "/"
+              {
+
+                String msg = "The report requests resource '" + resourceName
+                              + "', which does no exist in Reports for Intrexx or which "
+                              + "is not assigned to the report. Assigned resources are: "
+                              + resources.keySet();
+                LOG.warn(msg);
+                return null;
+              }
+              else
+              {
+                String transformedPath = "internal/files/" + CONSTANTS.REPORTS_APPGUID + "/"
                                        + transformedResource.getName();
-              File transformedFile = new File(transformedPath);
-              if(!transformedFile.exists())
-                throw new RuntimeException("Die Datei '" + transformedFile.getAbsolutePath()
-                                           + "' existiert nicht. Sie sollte eigentlich die Ressource '"
-                                           + resourceName + "' darstellen.");
-              return transformedPath;
+                File transformedFile = new File(transformedPath);
+                if(!transformedFile.exists())
+                {
+                  String msg = "File '" + transformedFile.getAbsolutePath()
+                              + "' does not exists. It should represent the resource '"
+                              + resourceName + "'";
+                  LOG.warn(msg);
+                  return null;
+                }
+                else
+                  return transformedPath;
+              }
             }
 
             @Override
