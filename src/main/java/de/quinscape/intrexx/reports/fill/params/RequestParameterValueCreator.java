@@ -9,6 +9,7 @@
 
 package de.quinscape.intrexx.reports.fill.params;
 
+import de.uplanet.lucy.server.connector.IServerBridgeRequest;
 import de.uplanet.lucy.server.engine.http.IViewData;
 
 import de.quinscape.intrexx.reports.ReportContext;
@@ -36,15 +37,16 @@ public class RequestParameterValueCreator
       JRParameter parameter)
   {
     ReportParameterValueHolder result = new ReportParameterValueHolder();
-
     if(context.getRequest() != null)
     {
-      String value = context.getRequest().get(parameter.getName());
-      if(value == null)
-        value = context.getRequest().get("rq_" + parameter.getName());
-      result.setValue(value);
+      IServerBridgeRequest request = context.getRequest();
+      String name = parameter.getName();
+      String rqName = "rq_" + name;
+      if(request.containsKey(name))
+        result.setValue(request.get(name));
+      else if(request.containsKey(rqName))
+        result.setValue(request.get(rqName));
     }
-
     return (result.hasValue() ? result : null);
   }
 }

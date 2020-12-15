@@ -14,6 +14,9 @@ import static java.util.Collections.EMPTY_LIST;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.LogFactory;
+import org.jfree.util.Log;
+
 import de.quinscape.intrexx.reports.ReportContext;
 import de.quinscape.intrexx.reports.domain.IntrexxApplicationReport;
 
@@ -32,6 +35,8 @@ public class SequentialParameterValueCreator
 {
 
   private List<ParameterValueCreator> sequence;
+
+  private static final org.apache.commons.logging.Log LOG = LogFactory.getLog(SequentialParameterValueCreator.class);
 
   /**
    * Erzeugt eine Instanz mit einer {@link List} mit
@@ -61,9 +66,14 @@ public class SequentialParameterValueCreator
     Iterator<ParameterValueCreator> creators = sequence.iterator();
 
     while(value == null && creators.hasNext())
-      value = (ReportParameterValueHolder)creators.next().createParameterValue(context, report,
+    {
+      ParameterValueCreator creator = creators.next();
+      LOG.debug("Trying to create a value for '" + parameter.getName() + "' with " + creator.getClass().getName());
+      value = (ReportParameterValueHolder)creator.createParameterValue(context, report,
           parameter);
-
+    }
+    LOG.debug("Value for '" + parameter.getName() + "' finally set to " +
+      String.valueOf(value == null ? null : value.getValue()));
     return (value == null ? null : value.getValue());
   }
 

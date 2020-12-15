@@ -9,13 +9,15 @@
 
 package de.quinscape.intrexx.reports.fill.params;
 
+import java.util.Locale;
 import java.util.TimeZone;
 
 import de.uplanet.lucy.server.businesslogic.IBusinessLogicProcessingContext;
+import de.uplanet.lucy.server.common.util.ServerLocale;
 import de.uplanet.lucy.server.connector.IServerBridgeRequest;
 import de.uplanet.lucy.server.session.ISession;
 import de.uplanet.lucy.server.usermanager.IUser;
-
+import de.uplanet.lucy.util.ILocale;
 import de.quinscape.intrexx.reports.ReportContext;
 import de.quinscape.intrexx.reports.domain.IntrexxApplicationReport;
 
@@ -126,6 +128,11 @@ public class ContextParameterValueCreator
     else if(INTREXX_USER_TIME_ZONE.equalsIgnoreCase(parameter.getName()))
     {
       value.setValue(context.ix().getUserTimeZone());
+    }
+    else if("REPORT_LOCALE".equalsIgnoreCase(parameter.getName()))
+    {
+      ILocale serverLocale = (ILocale)(context.ix().getSession().get("locale"));
+      value.setValue(Locale.forLanguageTag(serverLocale.getLanguageTag()));
     }
 
     return (value.hasValue() ? value : null);

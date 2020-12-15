@@ -9,6 +9,8 @@
 
 package de.quinscape.intrexx.reports.fill.params;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.core.convert.ConversionService;
 
 import de.quinscape.intrexx.reports.ReportContext;
@@ -31,23 +33,37 @@ public class ContextPreservingConvertingParametriser
 
   private ParameterValueCreator parameterValueCreator;
 
+  private Log LOG = LogFactory.getLog(ContextPreservingConvertingParametriser.class);
+
   @Override
   public final void parametrise(ReportContext context, IntrexxApplicationReport report)
   {
+    LOG.debug("Starting parametrisation");
+
     for(JRParameter parameter : report.getMainJasperReport().getParameters())
     {
       Object value = null;
       String parameterName = parameter.getName();
+      LOG.debug("Parameter '" + parameterName + "'");
 
       // bereits gesetzte Parameter (z.B. in Groovy) haben Vorrang
       if(context.containsParameter(parameterName))
+      {
+        LOG.debug("'"+ parameterName + "' is mentioned in reports context");
         value = context.getParameterValue(parameterName);
+        LOG.debug("'"+ parameterName + "' is set to '" + String.valueOf(value) + "' in reports context");
+      }
 
       // Nur wenn kein Parameter explizit gesetzt wurde, wird einer gesucht
       if(value == null)
+      {
+        LOG.debug("Value for '"+ parameterName + "' will be created");
         value = parameterValueCreator.createParameterValue(context, report, parameter);
+      }
 
-      if(value != null)
+      if(value == null)
+        LOG.debug("Value for '"+ parameterName + "' is still null");
+      else
       {
         Class<?> sourceType = value.getClass();
         Class<?> targetType = parameter.getValueClass();
