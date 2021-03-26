@@ -9,18 +9,18 @@
 
 package de.quinscape.intrexx.reports.fill.params;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import de.quinscape.intrexx.reports.ReportContext;
+import de.quinscape.intrexx.reports.domain.IntrexxApplicationReport;
 import de.uplanet.lucy.server.businesslogic.IBusinessLogicProcessingContext;
-import de.uplanet.lucy.server.common.util.ServerLocale;
 import de.uplanet.lucy.server.connector.IServerBridgeRequest;
 import de.uplanet.lucy.server.session.ISession;
 import de.uplanet.lucy.server.usermanager.IUser;
 import de.uplanet.lucy.util.ILocale;
-import de.quinscape.intrexx.reports.ReportContext;
-import de.quinscape.intrexx.reports.domain.IntrexxApplicationReport;
-
 import net.sf.jasperreports.engine.JRParameter;
 
 /**
@@ -89,6 +89,13 @@ public class ContextParameterValueCreator
    */
   public static final String INTREXX_SHARED_STATE = "INTREXX_SHARED_STATE";
 
+  /**
+   * Für einen Parameter mit diesem Namen wird ein Numberformat für
+   * Dezimalzahlen übergeben, entsprechend den in Intrexx eingestellten
+   * Format-Vorgaben (Anzahl Nachkommastellen etc.).
+   */
+  public static final String INTREXX_NUMBER_FORMAT = "INTREXX_NUMBER_FORMAT";
+
   @Override
   public ReportParameterValueHolder createParameterValue(ReportContext context,
       IntrexxApplicationReport report,
@@ -134,7 +141,58 @@ public class ContextParameterValueCreator
       ILocale serverLocale = (ILocale)(context.ix().getSession().get("locale"));
       value.setValue(Locale.forLanguageTag(serverLocale.getLanguageTag()));
     }
+    else if("INTREXX_NUMBER_FORMAT".equalsIgnoreCase(parameter.getName()))
+    {
+      ILocale serverLocale = (ILocale)(context.ix().getSession().get("locale"));
+      char digitSep = serverLocale.getNumberDigitSeparator().toCharArray()[0];
+      char decimalSep = serverLocale.getNumberDecimalSeparator().toCharArray()[0];
+      boolean leadingNull = serverLocale.isNumberLeadingNulls();
+      int fractionDigits = serverLocale.getNumberFractionDigits();
+      DecimalFormat format = buildFloatFormat(digitSep, decimalSep, leadingNull, fractionDigits);
+      value.setValue(format);
+    }
+    else if("INTREXX_INTEGER_FORMAT".equalsIgnoreCase(parameter.getName()))
+    {
+      ILocale serverLocale = (ILocale)(context.ix().getSession().get("locale"));
+      String digitSep = serverLocale.getIntegerDigitSeparator();
+      DecimalFormat format = new DecimalFormat("############");
+      if(digitSep != null && !"".equals(digitSep))
+      {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setGroupingSeparator(digitSep.toCharArray()[0]);
+        format = new DecimalFormat("###,###,###,###", symbols);
+      }
+      value.setValue(format);
+    }
+    else if("INTREXX_CURRENCY_FORMAT".equalsIgnoreCase(parameter.getName()))
+    {
+      ILocale serverLocale = (ILocale)(context.ix().getSession().get("locale"));
+      char digitSep = serverLocale.getCurrencyDigitSeparator().toCharArray()[0];
+      char decimalSep = serverLocale.getCurrencyDecimalSeparator().toCharArray()[0];
+      boolean leadingNull = serverLocale.isCurrencyLeadingNulls();
+      int fractionDigits = serverLocale.getCurrencyFractionDigits();
+      DecimalFormat format = buildFloatFormat(digitSep, decimalSep, leadingNull, fractionDigits);
+      value.setValue(format);
+    }
 
     return (value.hasValue() ? value : null);
   }
+
+  private static DecimalFormat buildFloatFormat(char digitSep, char decimalSep, boolean leadingNull,
+      int fractionDigits)
+  {
+    DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+    symbols.setGroupingSeparator(digitSep);
+    symbols.setDecimalSeparator(decimalSep);
+    StringBuilder patternBuilder = new StringBuilder("###,###,###,##");
+    if(leadingNull)
+      patternBuilder.append("0.");
+    else
+      patternBuilder.append("#.");
+    for(int i = fractionDigits; i > 0; i--)
+      patternBuilder.append("0");
+    String pattern = patternBuilder.toString();
+    return new DecimalFormat(pattern, symbols);
+  }
+
 }
